@@ -372,8 +372,6 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        /* Footer Styles */
         .footer {
             margin-top: 40px;
             padding: 20px 0 0;
@@ -445,7 +443,6 @@
             margin: 0;
         }
 
-        /* Responsividade */
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -485,7 +482,6 @@
             }
         }
 
-        /* Animações */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -540,7 +536,6 @@
 
         <div id="resultado-geral" class="total-section hidden"></div>
 
-        <!-- SIMULADOR -->
         <div id="simulador-section" class="section hidden">
             <h2><i class="fas fa-chart-line"></i> Simulador de Cenários</h2>
 
@@ -584,7 +579,7 @@
         </div>
     </main>
 
-    <!-- FOOTER PROFISSIONAL -->
+ 
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-divider"></div>
@@ -603,7 +598,7 @@
 </div>
 
 <script>
-    // Constantes e variáveis globais
+
     const APP = {
         produtividadePorUnidade: {
             caixas: { total: 0, horas: 0, produtividade: 0 },
@@ -614,7 +609,7 @@
         isLoading: false
     };
 
-    // Elementos DOM
+
     const DOM = {
         setoresContainer: document.getElementById('setores-container'),
         adicionarSetorBtn: document.getElementById('adicionar-setor'),
@@ -625,20 +620,18 @@
         resultadosSimulacao: document.getElementById('resultados-simulacao')
     };
 
-    /* ====== INICIALIZAÇÃO ====== */
+
     document.addEventListener('DOMContentLoaded', function() {
-        // Criar setores iniciais
+
         for(let i = 0; i < 3; i++) {
             criarSetor();
         }
 
-        // Adicionar event listeners
         DOM.adicionarSetorBtn.addEventListener('click', () => criarSetor());
         DOM.calcularGeralBtn.addEventListener('click', calcularCapacidadeProdutiva);
         DOM.calcularSimulacaoBtn.addEventListener('click', calcularSimulacao);
     });
 
-    /* ====== FUNÇÕES DE SETORES ====== */
     function criarSetor(nome = `SETOR ${APP.contadorSetores + 1}`) {
         APP.contadorSetores++;
         const setorId = APP.contadorSetores;
@@ -670,7 +663,7 @@
         
         DOM.setoresContainer.appendChild(setor);
         
-        // Adicionar validação em tempo real aos inputs
+
         const inputs = setor.querySelectorAll('input, select');
         inputs.forEach(input => {
             input.addEventListener('input', validarInput);
@@ -689,7 +682,6 @@
         }
     }
 
-    /* ====== FUNÇÕES DE AMOSTRAS ====== */
     function criarLinhaAmostraHTML() {
         return `
         <div class="amostra-row slide-down">
@@ -712,7 +704,7 @@
         const container = document.getElementById(`amostras-setor-${setorId}`);
         container.insertAdjacentHTML('beforeend', criarLinhaAmostraHTML());
         
-        // Adicionar validação à nova linha
+
         const novaAmostra = container.lastElementChild;
         const inputs = novaAmostra.querySelectorAll('input, select');
         inputs.forEach(input => {
@@ -729,19 +721,18 @@
         }, 300);
     }
 
-    /* ====== VALIDAÇÃO ====== */
     function validarInput(event) {
         const input = event.target;
         
         if (input.classList.contains('amostra-tempo')) {
-            // Validar formato de tempo (HH:MM:SS)
+
             const tempoRegex = /^([0-9]{1,2}):([0-5][0-9]):([0-5][0-9])$/;
             if (!tempoRegex.test(input.value)) {
                 input.classList.add('error');
                 return false;
             }
         } else if (input.type === 'number') {
-            // Validar números positivos
+
             if (parseFloat(input.value) <= 0) {
                 input.classList.add('error');
                 return false;
@@ -760,15 +751,12 @@
             const tempo = amostra.querySelector('.amostra-tempo').value;
             const quantidade = amostra.querySelector('.amostra-quantidade').value;
             const pessoas = amostra.querySelector('.amostra-pessoas').value;
-            
-            // Validar tempo
             const tempoRegex = /^([0-9]{1,2}):([0-5][0-9]):([0-5][0-9])$/;
             if (!tempoRegex.test(tempo)) {
                 amostra.querySelector('.amostra-tempo').classList.add('error');
                 todasValidas = false;
             }
-            
-            // Validar números
+
             if (parseFloat(quantidade) <= 0) {
                 amostra.querySelector('.amostra-quantidade').classList.add('error');
                 todasValidas = false;
@@ -783,7 +771,6 @@
         return todasValidas;
     }
 
-    /* ====== FUNÇÕES AUXILIARES ====== */
     function tempoParaHoras(tempo) {
         const partes = (tempo || '').split(':');
         if (partes.length !== 3) return 0;
@@ -814,11 +801,9 @@
     }
 
     function showNotification(message, type = 'success') {
-        // Remover notificações existentes
+
         const existingNotifications = document.querySelectorAll('.notification');
         existingNotifications.forEach(notification => notification.remove());
-        
-        // Criar nova notificação
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.innerHTML = `
@@ -826,10 +811,9 @@
             <span>${message}</span>
         `;
         
-        // Adicionar ao DOM
+
         document.querySelector('.container').insertBefore(notification, document.querySelector('main'));
         
-        // Remover após 5 segundos
         setTimeout(() => {
             notification.classList.add('hidden');
             setTimeout(() => {
@@ -854,9 +838,8 @@
         }
     }
 
-    /* ====== CÁLCULO GERAL ====== */
     function calcularCapacidadeProdutiva() {
-        // Validar amostras antes de calcular
+
         if (!validarAmostras()) {
             showNotification('Por favor, corrija os erros destacados em vermelho antes de calcular.', 'error');
             return;
@@ -864,14 +847,12 @@
         
         toggleLoading(DOM.calcularGeralBtn, true);
         
-        // Resetar produtividades
         APP.produtividadePorUnidade = {
             caixas: { total: 0, horas: 0, produtividade: 0 },
             unidades: { total: 0, horas: 0, produtividade: 0 },
             peso: { total: 0, horas: 0, produtividade: 0 }
         };
-        
-        // Simular processamento
+  
         setTimeout(() => {
             let resultadoHTML = `<h2><i class="fas fa-chart-bar"></i> Resultados das Amostras por Setor</h2>`;
             let totalPessoas = 0, setoresValidos = 0;
@@ -897,8 +878,7 @@
                     if (horas > 0 && quantidade > 0) {
                         setorValido = true;
                         setorTotalHoras += horas;
-                        
-                        // Acumular por tipo de unidade
+                
                         APP.produtividadePorUnidade[tipo].total += quantidade;
                         APP.produtividadePorUnidade[tipo].horas += horas;
                         
@@ -937,7 +917,7 @@
             });
             
             if (setoresValidos > 0) {
-                // Calcular produtividades por tipo
+
                 resultadoHTML += `<h2><i class="fas fa-chart-pie"></i> Produtividade por Tipo de Unidade</h2>`;
                 
                 resultadoHTML += `<div class="unit-breakdown">`;
@@ -987,9 +967,9 @@
         }, 800);
     }
 
-    /* ====== SIMULADOR ====== */
+
     function calcularSimulacao() {
-        // Verificar se há produtividade calculada
+  
         let temProdutividade = false;
         for (let dados of Object.values(APP.produtividadePorUnidade)) {
             if (dados.horas > 0 && dados.produtividade > 0) {
@@ -1005,7 +985,6 @@
         
         toggleLoading(DOM.calcularSimulacaoBtn, true);
         
-        // Simular processamento
         setTimeout(() => {
             const pessoas = Math.max(1, parseFloat(document.getElementById("pessoas").value) || 0);
             const metaCaixas = Math.max(0, parseFloat(document.getElementById("meta-caixas").value) || 0);
@@ -1016,7 +995,6 @@
             
             let html = `<h2><i class="fas fa-chart-bar"></i> Resultado da Simulação por Tipo de Unidade</h2>`;
             
-            // Análise por tipo
             const tipos = [
                 { id: 'caixas', nome: 'Caixas', icon: '📦', meta: metaCaixas, dados: APP.produtividadePorUnidade.caixas },
                 { id: 'unidades', nome: 'Unidades', icon: '📱', meta: metaUnidades, dados: APP.produtividadePorUnidade.unidades },
@@ -1080,7 +1058,6 @@
             
             html += `</div>`;
             
-            // Resumo geral
             html += `<h3><i class="fas fa-chart-line"></i> Resumo Geral</h3>`;
             html += `<table class="results">`;
             html += `<tr><th>Indicador</th><th>Valor</th></tr>`;
