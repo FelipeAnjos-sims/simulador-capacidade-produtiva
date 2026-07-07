@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Capacidade Produtiva - Cronoanálise.0</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0066CC;
+            --primary-dark: #004080;
+            --secondary: #008C4A;
+            --secondary-dark: #046c39;
+            --dark: #000000;
+            --light: #ffffff;
+            --gray-light: #f4f4f4;
+            --gray-medium: #e0e0e0;
+            --gray-dark: #888888;
+            --success-bg: #e8f9ee;
+            --success-border: #46b35f;
+            --error-bg: #fff1f1;
+            --error-border: #ff5e5e;
+            --warning-bg: #fff3cd;
+            --warning-border: #ffc107;
+            --shadow: 0 6px 20px rgba(0,0,0,.1);
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-light);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            flex: 1;
+        }
+
+        h1, h2, h3 {
+            color: var(--dark);
+            margin-top: 0;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section {
+            margin-top: 25px;
+            padding: 20px;
+            border: 1px solid var(--gray-medium);
+            border-radius: var(--border-radius);
+            background: #fafafa;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .section:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            flex: 1;
+            margin: 0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .section-title:focus {
+            outline: 2px solid var(--primary);
+            background-color: rgba(0, 102, 204, 0.05);
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .delete-btn:hover {
+            background-color: rgba(0, 102, 204, 0.1);
+            transform: scale(1.1);
+        }
+
+        .amostra-header {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1.2fr 1fr 1fr 0.8fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            background: var(--gray-medium);
+            padding: 10px;
+            border-radius: var(--border-radius);
+        }
+
+        .amostra-row {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1.2fr 1fr 1fr 0.8fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        input, select {
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-medium);
+            transition: var(--transition);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+        }
+
+        input.error {
+            border-color: var(--primary);
+            background-color: var(--error-bg);
+        }
+
+        select {
+            background-color: white;
+            cursor: pointer;
+        }
+
+        select:hover {
+            border-color: var(--primary);
+        }
+
+        button {
+            background: var(--primary);
+            color: var(--light);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-excluir-amostra {
+            background: var(--gray-medium);
+            color: var(--dark);
+            padding: 8px;
+        }
+
+        .btn-excluir-amostra:hover {
+            background: var(--primary);
+            color: var(--light);
+        }
+
+        .unit-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .badge-caixa {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+
+        .badge-unidade {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-peso {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .results {
+            margin-top: 15px;
+            border-collapse: collapse;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .results th, .results td {
+            border: 1px solid var(--gray-medium);
+            padding: 12px;
+            text-align: center;
+        }
+
+        .results th {
+            background: var(--primary);
+            color: var(--light);
+            font-weight: 600;
+        }
+
+        .highlight {
+            background: rgba(0, 102, 204, 0.1);
+            font-weight: bold;
+        }
+
+        .unit-breakdown {
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .unit-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+        }
+
+        .unit-card.caixa {
+            border-left-color: #0066CC;
+        }
+
+        .unit-card.unidade {
+            border-left-color: #008C4A;
+        }
+
+        .unit-card.peso {
+            border-left-color: #FFA500;
+        }
+
+        .unit-card h4 {
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .total-section {
+            margin-top: 40px;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            background: var(--light);
+            border: 2px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .add-sector {
+            background: var(--secondary);
+            margin-top: 15px;
+        }
+
+        .add-sector:hover {
+            background: var(--secondary-dark);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .notification {
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.success {
+            background: var(--success-bg);
+            border: 1px solid var(--success-border);
+            color: var(--secondary-dark);
+        }
+
+        .notification.error {
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            color: var(--primary);
+        }
+
+        .notification.warning {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            color: #856404;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .action-buttons button {
+            min-width: 200px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: var(--light);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer Styles */
+        .footer {
+            margin-top: 40px;
+            padding: 20px 0 0;
+            border-top: 1px solid var(--gray-medium);
+            text-align: center;
+            background: var(--light);
+            width: 100%;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), transparent);
+            margin-bottom: 20px;
+        }
+
+        .footer-name {
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .footer-name strong {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .footer-linkedin {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #0077B5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 15px;
+        }
+
+        .footer-linkedin:hover {
+            background: #005582;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 119, 181, 0.3);
+        }
+
+        .footer-linkedin i {
+            font-size: 1.2rem;
+        }
+
+        .footer-copyright {
+            color: var(--gray-dark);
+            font-size: 0.9rem;
+            padding: 15px 0;
+            background: var(--gray-light);
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .footer-copyright p {
+            margin: 0;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .amostra-header, .amostra-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            
+            .amostra-header div:last-child, .amostra-row button {
+                grid-column: 1;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-buttons button {
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+            }
+            
+            .footer-name {
+                font-size: 1rem;
+            }
+            
+            .footer-name strong {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Animações */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-down {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .input-with-unit {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .input-with-unit input {
+            flex: 1;
+        }
+
+        .unit-selector {
+            min-width: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1><i class="fas fa-industry"></i> Simulador de Capacidade Produtiva - Cronoanálise</h1>
+        <p>Insira as amostras de cada setor operacional. Agora você pode <strong>escolher entre diferentes unidades (caixas, unidades ou peso)</strong> para cada amostra.</p>
+    </header>
+
+    <main>
+        <div id="setores-container"></div>
+
+        <div style="text-align:center; margin-top:15px;">
+            <button id="adicionar-setor" class="add-sector"><i class="fas fa-plus"></i> Adicionar Setor</button>
+        </div>
+
+        <div class="action-buttons">
+            <button id="calcular-geral" style="font-size:16px;"><i class="fas fa-chart-line"></i> Calcular Capacidade Produtiva</button>
+        </div>
+
+        <div id="resultado-geral" class="total-section hidden"></div>
+
+        <!-- SIMULADOR -->
+        <div id="simulador-section" class="section hidden">
+            <h2><i class="fas fa-chart-line"></i> Simulador de Cenários</h2>
+
+            <div class="input-group">
+                <label for="pessoas">Número de Pessoas Efetivas:</label>
+                <input type="number" id="pessoas" value="10" min="1">
+            </div>
+
+            <div class="input-group">
+                <label>Meta por Tipo de Unidade:</label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <label>Caixas:</label>
+                        <input type="number" id="meta-caixas" value="1000" min="0">
+                    </div>
+                    <div>
+                        <label>Unidades:</label>
+                        <input type="number" id="meta-unidades" value="500" min="0">
+                    </div>
+                    <div>
+                        <label>Peso (kg):</label>
+                        <input type="number" id="meta-peso" value="2000" min="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="dias">Dias Efetivos no Mês:</label>
+                <input type="number" id="dias" value="22" min="1">
+            </div>
+            <div class="input-group">
+                <label>Jornada Produtiva (horas/dia):</label>
+                <input type="text" id="jornada" value="7.467" min="1">
+            </div>
+
+            <div style="text-align:center; margin-top:20px;">
+                <button id="calcular-simulacao"><i class="fas fa-play"></i> Calcular Simulação</button>
+            </div>
+
+            <div id="resultados-simulacao" class="total-section hidden"></div>
+        </div>
+    </main>
+
+    <!-- FOOTER PROFISSIONAL -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-divider"></div>
+            <div class="footer-name">
+                Desenvolvido por <strong>Felipe Anjos</strong>
+            </div>
+            <a href="https://www.linkedin.com/in/feehanjos/" target="_blank" rel="noopener noreferrer" class="footer-linkedin">
+                <i class="fab fa-linkedin"></i>
+                Conecte-se comigo no LinkedIn
+            </a>
+        </div>
+        <div class="footer-copyright">
+            <p>&copy; 2024 Felipe Anjos - Todos os direitos reservados</p>
+        </div>
+    </footer>
+</div>
+
+<script>
+    // Constantes e variáveis globais
+    const APP = {
+        produtividadePorUnidade: {
+            caixas: { total: 0, horas: 0, produtividade: 0 },
+            unidades: { total: 0, horas: 0, produtividade: 0 },
+            peso: { total: 0, horas: 0, produtividade: 0 }
+        },
+        contadorSetores: 0,
+        isLoading: false
+    };
+
+    // Elementos DOM
+    const DOM = {
+        setoresContainer: document.getElementById('setores-container'),
+        adicionarSetorBtn: document.getElementById('adicionar-setor'),
+        calcularGeralBtn: document.getElementById('calcular-geral'),
+        resultadoGeral: document.getElementById('resultado-geral'),
+        simuladorSection: document.getElementById('simulador-section'),
+        calcularSimulacaoBtn: document.getElementById('calcular-simulacao'),
+        resultadosSimulacao: document.getElementById('resultados-simulacao')
+    };
+
+    /* ====== INICIALIZAÇÃO ====== */
+    document.addEventListener('DOMContentLoaded', function() {
+        // Criar setores iniciais
+        for(let i = 0; i < 3; i++) {
+            criarSetor();
+        }
+
+        // Adicionar event listeners
+        DOM.adicionarSetorBtn.addEventListener('click', () => criarSetor());
+        DOM.calcularGeralBtn.addEventListener('click', calcularCapacidadeProdutiva);
+        DOM.calcularSimulacaoBtn.addEventListener('click', calcularSimulacao);
+    });
+
+    /* ====== FUNÇÕES DE SETORES ====== */
+    function criarSetor(nome = `SETOR ${APP.contadorSetores + 1}`) {
+        APP.contadorSetores++;
+        const setorId = APP.contadorSetores;
+        
+        const setor = document.createElement('div');
+        setor.classList.add('section', 'fade-in');
+        setor.id = `setor-${setorId}`;
+        
+        setor.innerHTML = `
+            <div class="section-header">
+                <h2 class="section-title" contenteditable="true"><i class="fas fa-vial"></i> ${nome}</h2>
+                <button class="delete-btn" title="Excluir setor" onclick="excluirSetor(${setorId})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <div class="amostra-header">
+                <div>Descrição</div>
+                <div>Tempo Total</div>
+                <div>Tipo</div>
+                <div>Quantidade</div>
+                <div>Pessoas</div>
+                <div></div>
+            </div>
+            <div class="amostras-container" id="amostras-setor-${setorId}">
+                ${criarLinhaAmostraHTML()}
+            </div>
+            <button onclick="adicionarAmostra(${setorId})"><i class="fas fa-plus"></i> Adicionar Amostra</button>
+        `;
+        
+        DOM.setoresContainer.appendChild(setor);
+        
+        // Adicionar validação em tempo real aos inputs
+        const inputs = setor.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', validarInput);
+            input.addEventListener('change', validarInput);
+        });
+    }
+
+    function excluirSetor(id) {
+        const setor = document.getElementById(`setor-${id}`);
+        if (setor) {
+            setor.classList.add('hidden');
+            setTimeout(() => {
+                setor.remove();
+                showNotification('Setor removido com sucesso.', 'success');
+            }, 300);
+        }
+    }
+
+    /* ====== FUNÇÕES DE AMOSTRAS ====== */
+    function criarLinhaAmostraHTML() {
+        return `
+        <div class="amostra-row slide-down">
+            <input type="text" class="amostra-nome" value="Amostra" placeholder="Nome da amostra">
+            <input type="text" class="amostra-tempo" value="3:00:00" placeholder="HH:MM:SS">
+            <select class="amostra-tipo">
+                <option value="caixas">📦 Caixas</option>
+                <option value="unidades">📱 Unidades</option>
+                <option value="peso">⚖️ Peso (kg)</option>
+            </select>
+            <input type="number" class="amostra-quantidade" value="50" min="0.1" step="0.1" placeholder="Quantidade">
+            <input type="number" class="amostra-pessoas" value="2" min="1" placeholder="Pessoas">
+            <button class="btn-excluir-amostra" title="Excluir Amostra" onclick="excluirAmostra(this)">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>`;
+    }
+
+    function adicionarAmostra(setorId) {
+        const container = document.getElementById(`amostras-setor-${setorId}`);
+        container.insertAdjacentHTML('beforeend', criarLinhaAmostraHTML());
+        
+        // Adicionar validação à nova linha
+        const novaAmostra = container.lastElementChild;
+        const inputs = novaAmostra.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', validarInput);
+            input.addEventListener('change', validarInput);
+        });
+    }
+
+    function excluirAmostra(botao) {
+        const linha = botao.closest('.amostra-row');
+        linha.classList.add('hidden');
+        setTimeout(() => {
+            linha.remove();
+        }, 300);
+    }
+
+    /* ====== VALIDAÇÃO ====== */
+    function validarInput(event) {
+        const input = event.target;
+        
+        if (input.classList.contains('amostra-tempo')) {
+            // Validar formato de tempo (HH:MM:SS)
+            const tempoRegex = /^([0-9]{1,2}):([0-5][0-9]):([0-5][0-9])$/;
+            if (!tempoRegex.test(input.value)) {
+                input.classList.add('error');
+                return false;
+            }
+        } else if (input.type === 'number') {
+            // Validar números positivos
+            if (parseFloat(input.value) <= 0) {
+                input.classList.add('error');
+                return false;
+            }
+        }
+        
+        input.classList.remove('error');
+        return true;
+    }
+
+    function validarAmostras() {
+        let todasValidas = true;
+        const amostras = document.querySelectorAll('.amostra-row');
+        
+        amostras.forEach(amostra => {
+            const tempo = amostra.querySelector('.amostra-tempo').value;
+            const quantidade = amostra.querySelector('.amostra-quantidade').value;
+            const pessoas = amostra.querySelector('.amostra-pessoas').value;
+            
+            // Validar tempo
+            const tempoRegex = /^([0-9]{1,2}):([0-5][0-9]):([0-5][0-9])$/;
+            if (!tempoRegex.test(tempo)) {
+                amostra.querySelector('.amostra-tempo').classList.add('error');
+                todasValidas = false;
+            }
+            
+            // Validar números
+            if (parseFloat(quantidade) <= 0) {
+                amostra.querySelector('.amostra-quantidade').classList.add('error');
+                todasValidas = false;
+            }
+            
+            if (parseFloat(pessoas) <= 0) {
+                amostra.querySelector('.amostra-pessoas').classList.add('error');
+                todasValidas = false;
+            }
+        });
+        
+        return todasValidas;
+    }
+
+    /* ====== FUNÇÕES AUXILIARES ====== */
+    function tempoParaHoras(tempo) {
+        const partes = (tempo || '').split(':');
+        if (partes.length !== 3) return 0;
+        const [h, m, s] = partes.map(Number);
+        return h + (m / 60) + (s / 3600);
+    }
+
+    function formatarNumero(n) {
+        return new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 }).format(n);
+    }
+
+    function getUnitIcon(type) {
+        switch(type) {
+            case 'caixas': return '📦';
+            case 'unidades': return '📱';
+            case 'peso': return '⚖️';
+            default: return '📦';
+        }
+    }
+
+    function getUnitLabel(type) {
+        switch(type) {
+            case 'caixas': return 'Caixas';
+            case 'unidades': return 'Unidades';
+            case 'peso': return 'kg';
+            default: return 'Caixas';
+        }
+    }
+
+    function showNotification(message, type = 'success') {
+        // Remover notificações existentes
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => notification.remove());
+        
+        // Criar nova notificação
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        // Adicionar ao DOM
+        document.querySelector('.container').insertBefore(notification, document.querySelector('main'));
+        
+        // Remover após 5 segundos
+        setTimeout(() => {
+            notification.classList.add('hidden');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 5000);
+    }
+
+    function toggleLoading(button, isLoading) {
+        if (isLoading) {
+            button.disabled = true;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="loading"></span> Processando...';
+            button.dataset.originalText = originalText;
+        } else {
+            button.disabled = false;
+            if (button.dataset.originalText) {
+                button.innerHTML = button.dataset.originalText;
+            }
+        }
+    }
+
+    /* ====== CÁLCULO GERAL ====== */
+    function calcularCapacidadeProdutiva() {
+        // Validar amostras antes de calcular
+        if (!validarAmostras()) {
+            showNotification('Por favor, corrija os erros destacados em vermelho antes de calcular.', 'error');
+            return;
+        }
+        
+        toggleLoading(DOM.calcularGeralBtn, true);
+        
+        // Resetar produtividades
+        APP.produtividadePorUnidade = {
+            caixas: { total: 0, horas: 0, produtividade: 0 },
+            unidades: { total: 0, horas: 0, produtividade: 0 },
+            peso: { total: 0, horas: 0, produtividade: 0 }
+        };
+        
+        // Simular processamento
+        setTimeout(() => {
+            let resultadoHTML = `<h2><i class="fas fa-chart-bar"></i> Resultados das Amostras por Setor</h2>`;
+            let totalPessoas = 0, setoresValidos = 0;
+            
+            const setores = document.querySelectorAll('#setores-container .section');
+            
+            setores.forEach(setor => {
+                const nomeSetor = setor.querySelector('.section-title').innerText;
+                const amostras = setor.querySelectorAll('.amostra-row');
+                
+                let setorRows = '';
+                let setorValido = false;
+                let setorTotalHoras = 0;
+                
+                amostras.forEach((a, index) => {
+                    const nome = a.querySelector('.amostra-nome').value || `Amostra ${index + 1}`;
+                    const tempo = a.querySelector('.amostra-tempo').value;
+                    const tipo = a.querySelector('.amostra-tipo').value;
+                    const quantidade = parseFloat(a.querySelector('.amostra-quantidade').value) || 0;
+                    const pessoas = parseFloat(a.querySelector('.amostra-pessoas').value) || 1;
+                    const horas = tempoParaHoras(tempo);
+                    
+                    if (horas > 0 && quantidade > 0) {
+                        setorValido = true;
+                        setorTotalHoras += horas;
+                        
+                        // Acumular por tipo de unidade
+                        APP.produtividadePorUnidade[tipo].total += quantidade;
+                        APP.produtividadePorUnidade[tipo].horas += horas;
+                        
+                        const produtividade = quantidade / horas;
+                        const unitIcon = getUnitIcon(tipo);
+                        const unitLabel = getUnitLabel(tipo);
+                        
+                        setorRows += `
+                        <tr>
+                            <td>${nome}</td>
+                            <td>${horas.toFixed(2)}h</td>
+                            <td>${unitIcon} ${tipo}</td>
+                            <td>${formatarNumero(quantidade)} ${unitLabel}</td>
+                            <td>${pessoas}</td>
+                            <td><strong>${produtividade.toFixed(2)} ${unitLabel}/h</strong></td>
+                        </tr>`;
+                    }
+                });
+                
+                if (setorValido) {
+                    setoresValidos++;
+                    resultadoHTML += `
+                    <h3>${nomeSetor}</h3>
+                    <table class="results">
+                        <tr>
+                            <th>Amostra</th>
+                            <th>Tempo (h)</th>
+                            <th>Tipo</th>
+                            <th>Quantidade</th>
+                            <th>Pessoas</th>
+                            <th>Produtividade</th>
+                        </tr>
+                        ${setorRows}
+                    </table>`;
+                }
+            });
+            
+            if (setoresValidos > 0) {
+                // Calcular produtividades por tipo
+                resultadoHTML += `<h2><i class="fas fa-chart-pie"></i> Produtividade por Tipo de Unidade</h2>`;
+                
+                resultadoHTML += `<div class="unit-breakdown">`;
+                
+                for (let [tipo, dados] of Object.entries(APP.produtividadePorUnidade)) {
+                    if (dados.horas > 0) {
+                        dados.produtividade = dados.total / dados.horas;
+                        
+                        const unitIcon = getUnitIcon(tipo);
+                        const unitLabel = getUnitLabel(tipo);
+                        const badgeClass = tipo === 'caixas' ? 'badge-caixa' : tipo === 'unidades' ? 'badge-unidade' : 'badge-peso';
+                        
+                        resultadoHTML += `
+                        <div class="unit-card ${tipo}">
+                            <h4>
+                                ${unitIcon} ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}
+                                <span class="unit-badge ${badgeClass}">${unitLabel}</span>
+                            </h4>
+                            <p><strong>Total:</strong> ${formatarNumero(dados.total)} ${unitLabel}</p>
+                            <p><strong>Horas totais:</strong> ${dados.horas.toFixed(2)}h</p>
+                            <p><strong>Produtividade:</strong> ${dados.produtividade.toFixed(2)} ${unitLabel}/h</p>
+                            <p><strong>Prod. por pessoa:</strong> ${(dados.produtividade / 2).toFixed(2)} ${unitLabel}/h</p>
+                        </div>`;
+                    }
+                }
+                
+                resultadoHTML += `</div>`;
+                
+                resultadoHTML += `
+                <div class="notification warning">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Importante:</strong> A produtividade é calculada separadamente por tipo de unidade (caixas, unidades e peso).
+                    Na simulação, você poderá definir metas específicas para cada tipo.
+                </div>`;
+                
+                showNotification('Cálculo realizado com sucesso!', 'success');
+            } else {
+                resultadoHTML += `<p>Nenhuma amostra válida foi encontrada.</p>`;
+                showNotification('Nenhuma amostra válida encontrada. Verifique os dados inseridos.', 'error');
+            }
+            
+            DOM.resultadoGeral.classList.remove('hidden');
+            DOM.resultadoGeral.innerHTML = resultadoHTML;
+            DOM.simuladorSection.classList.remove('hidden');
+            
+            toggleLoading(DOM.calcularGeralBtn, false);
+        }, 800);
+    }
+
+    /* ====== SIMULADOR ====== */
+    function calcularSimulacao() {
+        // Verificar se há produtividade calculada
+        let temProdutividade = false;
+        for (let dados of Object.values(APP.produtividadePorUnidade)) {
+            if (dados.horas > 0 && dados.produtividade > 0) {
+                temProdutividade = true;
+                break;
+            }
+        }
+        
+        if (!temProdutividade) {
+            showNotification('Calcule a Capacidade Produtiva (geral) antes de rodar a simulação.', 'error');
+            return;
+        }
+        
+        toggleLoading(DOM.calcularSimulacaoBtn, true);
+        
+        // Simular processamento
+        setTimeout(() => {
+            const pessoas = Math.max(1, parseFloat(document.getElementById("pessoas").value) || 0);
+            const metaCaixas = Math.max(0, parseFloat(document.getElementById("meta-caixas").value) || 0);
+            const metaUnidades = Math.max(0, parseFloat(document.getElementById("meta-unidades").value) || 0);
+            const metaPeso = Math.max(0, parseFloat(document.getElementById("meta-peso").value) || 0);
+            const dias = Math.max(1, parseFloat(document.getElementById("dias").value) || 0);
+            const jornada = Math.max(0, parseFloat(document.getElementById("jornada").value) || 0);
+            
+            let html = `<h2><i class="fas fa-chart-bar"></i> Resultado da Simulação por Tipo de Unidade</h2>`;
+            
+            // Análise por tipo
+            const tipos = [
+                { id: 'caixas', nome: 'Caixas', icon: '📦', meta: metaCaixas, dados: APP.produtividadePorUnidade.caixas },
+                { id: 'unidades', nome: 'Unidades', icon: '📱', meta: metaUnidades, dados: APP.produtividadePorUnidade.unidades },
+                { id: 'peso', nome: 'Peso (kg)', icon: '⚖️', meta: metaPeso, dados: APP.produtividadePorUnidade.peso }
+            ];
+            
+            let capacidadeTotal = 0;
+            let metaTotal = 0;
+            let deficits = [];
+            
+            html += `<div class="unit-breakdown">`;
+            
+            tipos.forEach(tipo => {
+                if (tipo.dados.horas > 0 && tipo.meta > 0) {
+                    const produtividadeHora = tipo.dados.produtividade;
+                    const produtividadeDia = produtividadeHora * jornada;
+                    const capacidadeMaxima = pessoas * produtividadeDia * dias;
+                    
+                    capacidadeTotal += capacidadeMaxima;
+                    metaTotal += tipo.meta;
+                    
+                    const pessoasNecessarias = Math.ceil(tipo.meta / (produtividadeDia * dias));
+                    const diasNecessarios = Math.ceil(tipo.meta / (produtividadeDia * pessoas));
+                    
+                    const badgeClass = tipo.id === 'caixas' ? 'badge-caixa' : tipo.id === 'unidades' ? 'badge-unidade' : 'badge-peso';
+                    
+                    let statusClass = 'success';
+                    let statusIcon = '✅';
+                    let statusText = 'Capacidade Suficiente';
+                    
+                    if (capacidadeMaxima < tipo.meta) {
+                        statusClass = 'error';
+                        statusIcon = '❌';
+                        statusText = 'Capacidade Insuficiente';
+                        deficits.push({
+                            tipo: tipo.nome,
+                            deficit: tipo.meta - capacidadeMaxima,
+                            unit: tipo.id === 'peso' ? 'kg' : tipo.id === 'unidades' ? 'unidades' : 'caixas'
+                        });
+                    }
+                    
+                    html += `
+                    <div class="unit-card ${tipo.id}">
+                        <h4>
+                            ${tipo.icon} ${tipo.nome}
+                            <span class="unit-badge ${badgeClass}">${tipo.id === 'peso' ? 'kg' : tipo.id}</span>
+                        </h4>
+                        <p><strong>Meta:</strong> ${formatarNumero(tipo.meta)} ${tipo.id === 'peso' ? 'kg' : ''}</p>
+                        <p><strong>Produtividade:</strong> ${produtividadeHora.toFixed(2)}/h</p>
+                        <p><strong>Prod. Diária (por pessoa):</strong> ${produtividadeDia.toFixed(2)}</p>
+                        <p><strong>Capacidade Máxima:</strong> ${formatarNumero(Math.ceil(capacidadeMaxima))}</p>
+                        <p><strong>Pessoas Necessárias:</strong> ${pessoasNecessarias}</p>
+                        <p><strong>Dias Necessários:</strong> ${diasNecessarios}</p>
+                        <div class="notification ${statusClass}" style="margin-top:10px; padding:8px;">
+                            <i class="fas fa-${statusClass === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                            ${statusText}
+                        </div>
+                    </div>`;
+                }
+            });
+            
+            html += `</div>`;
+            
+            // Resumo geral
+            html += `<h3><i class="fas fa-chart-line"></i> Resumo Geral</h3>`;
+            html += `<table class="results">`;
+            html += `<tr><th>Indicador</th><th>Valor</th></tr>`;
+            html += `<tr><td>Total de Pessoas na Equipe</td><td>${pessoas}</td></tr>`;
+            html += `<tr><td>Dias Disponíveis</td><td>${dias}</td></tr>`;
+            html += `<tr><td>Jornada Diária</td><td>${jornada} horas</td></tr>`;
+            
+            if (deficits.length > 0) {
+                html += `<tr><td colspan="2" style="background: var(--error-bg); color: var(--primary);">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    <strong>Déficits Identificados:</strong>
+                    ${deficits.map(d => `${d.tipo}: ${formatarNumero(Math.ceil(d.deficit))} ${d.unit}`).join(' | ')}
+                </td></tr>`;
+            } else if (metaTotal > 0) {
+                html += `<tr><td colspan="2" style="background: var(--success-bg); color: var(--secondary-dark);">
+                    <i class="fas fa-check-circle"></i> 
+                    <strong>Capacidade Suficiente para todas as metas!</strong>
+                </td></tr>`;
+            }
+            
+            html += `</table>`;
+            
+            DOM.resultadosSimulacao.classList.remove('hidden');
+            DOM.resultadosSimulacao.innerHTML = html;
+            
+            toggleLoading(DOM.calcularSimulacaoBtn, false);
+            showNotification('Simulação concluída com sucesso!', 'success');
+        }, 800);
+    }
+</script>
+</body>
+</html>
